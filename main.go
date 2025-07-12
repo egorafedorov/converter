@@ -7,11 +7,15 @@ import (
 	"github.com/fatih/color"
 )
 
-const USDtoEUR = 0.85
-const USDtoRUB = 78.21
-const EURtoRUB = USDtoRUB / USDtoEUR
+type exchageRatesMap = map[string]float64
 
 func main() {
+	exchangeRates := exchageRatesMap{
+		"USDtoEUR": 0.87,
+		"USDtoRUB": 78.29,
+		"EURtoRUB": 91.06,
+	}
+
 	fmt.Println("*** Converter app ***")
 	for {
 		sourceCurrency, errorSourceCurrency := inputSourceCurrency()
@@ -29,7 +33,7 @@ func main() {
 			color.Red("Error! Enter the currency from the options above\n")
 			continue
 		}
-		result := calculationData(userInputData, sourceCurrency, targetCurrency)
+		result := calculationData(&exchangeRates, userInputData, sourceCurrency, targetCurrency)
 		resultOutput := fmt.Sprintf("Total: %.2f\n", result)
 		color.Blue(resultOutput)
 		repeatCalculation := repeatCalculation()
@@ -79,21 +83,21 @@ func inputTargetCurrency(sourceCurrency string) (string, error) {
 	return "", errors.New("INVALID_DATA")
 }
 
-func calculationData(userInputData float64, sourceCurrency string, targetCurrency string) float64 {
+func calculationData(exchangeRates *exchageRatesMap, userInputData float64, sourceCurrency string, targetCurrency string) float64 {
 	var result float64
 	switch {
 	case sourceCurrency == "USD" && targetCurrency == "EUR":
-		result = userInputData * USDtoEUR
+		result = userInputData * (*exchangeRates)["USDtoEUR"]
 	case sourceCurrency == "USD" && targetCurrency == "RUB":
-		result = userInputData * USDtoRUB
+		result = userInputData * (*exchangeRates)["USDtoRUB"]
 	case sourceCurrency == "EUR" && targetCurrency == "USD":
-		result = userInputData / USDtoEUR
+		result = userInputData / (*exchangeRates)["USDtoEUR"]
 	case sourceCurrency == "EUR" && targetCurrency == "RUB":
-		result = userInputData * EURtoRUB
+		result = userInputData * (*exchangeRates)["EURtoRUB"]
 	case sourceCurrency == "RUB" && targetCurrency == "USD":
-		result = userInputData / USDtoRUB
+		result = userInputData / (*exchangeRates)["USDtoRUB"]
 	case sourceCurrency == "RUB" && targetCurrency == "EUR":
-		result = userInputData / EURtoRUB
+		result = userInputData / (*exchangeRates)["EURtoRUB"]
 	}
 	return result
 }
